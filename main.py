@@ -1,19 +1,12 @@
 from datetime import date
 
 from fastapi import Body, FastAPI, HTTPException, status
-from pydantic import BaseModel
 from tortoise.contrib.fastapi import register_tortoise
 
 from models import Cargo, Rate
+from schemas import CargoListSchema, RateCreateSchema, RateListSchema
 
 app = FastAPI()
-
-
-class RateCreateSchema(BaseModel):
-    """Схема создания Тарифа."""
-
-    cargo_type: str
-    rate: float
 
 
 @app.get("/")
@@ -46,7 +39,7 @@ async def import_rates(rates: dict[date, RateCreateSchema]) -> dict:
 
 
 @app.get("/rates/")
-async def get_rates():
+async def get_rates() -> list[RateListSchema]:
     """Получить все Тарифы."""
     return await Rate.all()
 
@@ -72,7 +65,7 @@ async def get_cargo_by_id(cargo_id: int):
 
 
 @app.get("/cargos/")
-async def get_cargos():
+async def get_cargos() -> list[CargoListSchema]:
     """Получить все Грузы."""
     return await Cargo.all()
 
