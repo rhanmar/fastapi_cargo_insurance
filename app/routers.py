@@ -84,5 +84,5 @@ async def calc_cargo_insurance(
         "cargo_type": cargo_type,
         "rate": rate.rate,
         "value": cargo_db.value,
-        "cargo_insurance": cargo_db.value * rate.rate,
+        "cargo_insurance": round(cargo_db.value * rate.rate, 2),
     }

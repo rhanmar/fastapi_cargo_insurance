@@ -121,7 +121,7 @@ async def test_calc_cargo_insurance(client):
     assert res_json["cargo_type"] == cargo_db.name
     assert res_json["rate"] == rate_db.rate
     assert res_json["value"] == cargo_db.value
-    assert res_json["cargo_insurance"] == cargo_db.value * rate_db.rate
+    assert res_json["cargo_insurance"] == round(cargo_db.value * rate_db.rate, 2)
 
 
 @pytest.mark.anyio
