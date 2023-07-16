@@ -1,11 +1,10 @@
-from pydantic import BaseModel
-
-from fastapi import FastAPI, Body, HTTPException, status
 from datetime import date
+
+from fastapi import Body, FastAPI, HTTPException, status
+from pydantic import BaseModel
 from tortoise.contrib.fastapi import register_tortoise
 
 from models import Cargo, Rate
-
 
 app = FastAPI()
 
@@ -41,15 +40,9 @@ async def import_rates(rates: dict[date, RateCreateSchema]) -> dict:
     count = 0
     for dtime in rates:
         cargo_db, _ = await Cargo.get_or_create(name=rates[dtime].cargo_type)
-        await Rate.create(
-            date=dtime,
-            cargo=cargo_db,
-            rate=rates[dtime].rate
-        )
+        await Rate.create(date=dtime, cargo=cargo_db, rate=rates[dtime].rate)
         count += 1
-    return {
-        "info": f"Обработано тарифов: {count}"
-    }
+    return {"info": f"Обработано тарифов: {count}"}
 
 
 @app.get("/rates/")
@@ -66,9 +59,7 @@ async def set_cargo_value(cargo_id: int, value: float = Body(embed=True)) -> dic
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Груз не найден")
     cargo_db.value = value
     await cargo_db.save()
-    return {
-        "info": f"Объявленная стоимость Груза {cargo_db.name} изменена на {value}"
-    }
+    return {"info": f"Объявленная стоимость Груза {cargo_db.name} изменена на {value}"}
 
 
 @app.get("/cargos/")
@@ -79,8 +70,7 @@ async def get_cargos() -> list:
 
 @app.post("/cargo_insurance/")
 async def calc_cargo_insurance(
-        chosen_date: date = Body(embed=True),
-        cargo_type: str = Body(embed=True)
+    chosen_date: date = Body(embed=True), cargo_type: str = Body(embed=True)
 ) -> dict:
     """Посчитать стоимость страхования для выбранного типа груза и даты."""
     cargo_db = await Cargo.filter(name=cargo_type).first()
