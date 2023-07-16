@@ -62,8 +62,17 @@ async def set_cargo_value(cargo_id: int, value: float = Body(embed=True)) -> dic
     return {"info": f"Объявленная стоимость Груза {cargo_db.name} изменена на {value}"}
 
 
+@app.get("/cargos/{cargo_id}/")
+async def get_cargo_by_id(cargo_id: int):
+    """Получить Груз по ID."""
+    cargo_db = await Cargo.filter(id=cargo_id).first()
+    if not cargo_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Груз не найден")
+    return cargo_db
+
+
 @app.get("/cargos/")
-async def get_cargos() -> list:
+async def get_cargos():
     """Получить все Грузы."""
     return await Cargo.all()
 
