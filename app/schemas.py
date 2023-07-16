@@ -6,15 +6,13 @@ from app.models import Rate, Cargo
 
 Tortoise.init_models(["app.models"], "models")
 
-# Схема списка Тарифов
-RateListSchema = pydantic_model_creator(
-    Rate, name="RateListSchema", include=("id", "rate", "date", "cargo_id")
+# Схема Тарифа
+RateSchema = pydantic_model_creator(
+    Rate, name="RateSchema", include=("id", "rate", "date", "cargo_id")
 )
 
-# Схема списка Грузов
-CargoListSchema = pydantic_model_creator(
-    Cargo, name="CargoListSchema", include=("id", "name", "value")
-)
+# Схема Груза
+CargoSchema = pydantic_model_creator(Cargo, name="CargoListSchema", include=("id", "name", "value"))
 
 
 class RateCreateSchema(BaseModel):
