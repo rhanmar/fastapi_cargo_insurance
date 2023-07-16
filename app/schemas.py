@@ -2,15 +2,19 @@ from pydantic import BaseModel
 from tortoise import Tortoise
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from models import Rate, Cargo
+from app.models import Rate, Cargo
 
-Tortoise.init_models(["models"], "models")
+Tortoise.init_models(["app.models"], "models")
 
 # Схема списка Тарифов
-RateListSchema = pydantic_model_creator(Rate, name="RateListSchema", include=("id", "rate", "date", "cargo_id"))
+RateListSchema = pydantic_model_creator(
+    Rate, name="RateListSchema", include=("id", "rate", "date", "cargo_id")
+)
 
 # Схема списка Грузов
-CargoListSchema = pydantic_model_creator(Cargo, name="CargoListSchema", include=("id", "name", "value"))
+CargoListSchema = pydantic_model_creator(
+    Cargo, name="CargoListSchema", include=("id", "name", "value")
+)
 
 
 class RateCreateSchema(BaseModel):

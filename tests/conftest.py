@@ -3,8 +3,8 @@ from fastapi.testclient import TestClient
 from tortoise import Tortoise
 from tortoise.contrib.fastapi import register_tortoise
 
-from main import app
-from models import Cargo, Rate
+from app.main import app
+from app.models import Cargo, Rate
 
 
 @pytest.fixture(scope="module")
@@ -22,7 +22,7 @@ async def init_test_db():
     register_tortoise(
         app,
         db_url="sqlite://sql_app_test.db",
-        modules={"models": ["models"]},
+        modules={"models": ["app.models"]},
         generate_schemas=True,
         add_exception_handlers=True,
     )

@@ -1,7 +1,7 @@
 import pytest
 from fastapi import status
 
-from models import Cargo, Rate
+from app.models import Cargo, Rate
 
 
 @pytest.mark.anyio
@@ -22,7 +22,7 @@ async def test_import_rates(client):
     }
 
     assert await Cargo.all().count() == 0
-    response = client.post("/rates/", json=import_data)
+    response = client.post("/api/rates/", json=import_data)
     assert response.status_code == status.HTTP_200_OK
     res_json = response.json()
     assert res_json["info"] == "Обработано тарифов: 3"
@@ -37,7 +37,7 @@ async def test_get_rates(client):
     rate_db_1 = await Rate.create(cargo=cargo_db, rate=1.1, date=dtime)
     rate_db_2 = await Rate.create(cargo=cargo_db, rate=1.1, date=dtime)
     rate_db_3 = await Rate.create(cargo=cargo_db, rate=1.1, date=dtime)
-    response = client.get("/rates/")
+    response = client.get("/api/rates/")
     assert response.status_code == status.HTTP_200_OK
     res_json = response.json()
     assert len(res_json) == 3
@@ -51,7 +51,7 @@ async def test_get_rates(client):
 @pytest.mark.anyio
 async def test_cargo_detail(client):
     cargo_db = await Cargo.create(name="test 1")
-    url: str = f"/cargos/{cargo_db.id}"
+    url: str = f"/api/cargos/{cargo_db.id}"
     response = client.get(url)
     assert response.status_code == status.HTTP_200_OK
     res_json = response.json()
@@ -63,7 +63,7 @@ async def test_cargo_detail(client):
 @pytest.mark.anyio
 async def test_set_cargo_value(client):
     cargo_db = await Cargo.create(name="test 1")
-    url: str = f"/cargos/{cargo_db.id}"
+    url: str = f"/api/cargos/{cargo_db.id}"
     response = client.get(url)
     assert response.status_code == status.HTTP_200_OK
     res_json = response.json()
@@ -85,7 +85,7 @@ async def test_set_cargo_value(client):
 
 @pytest.mark.anyio
 def test_set_cargo_value_404(client):
-    url: str = "/cargos/404"
+    url: str = "/api/cargos/404"
     response = client.patch(url, json={"value": 404})
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -95,7 +95,7 @@ async def test_get_cargos(client):
     cargo_db_1 = await Cargo.create(name="test 1")
     cargo_db_2 = await Cargo.create(name="test 2")
     cargo_db_3 = await Cargo.create(name="test 3")
-    response = client.get("/cargos/")
+    response = client.get("/api/cargos/")
     assert response.status_code == status.HTTP_200_OK
     res_json = response.json()
     assert len(res_json) == 3
@@ -113,7 +113,7 @@ async def test_calc_cargo_insurance(client):
     cargo_db = await Cargo.create(name="test 1", value=value)
     rate_db = await Rate.create(cargo=cargo_db, rate=rate, date=dtime)
     response = client.post(
-        "/cargo_insurance/", json={"chosen_date": dtime, "cargo_type": cargo_db.name}
+        "/api/cargo_insurance/", json={"chosen_date": dtime, "cargo_type": cargo_db.name}
     )
     assert response.status_code == status.HTTP_200_OK
     res_json = response.json()
@@ -127,7 +127,7 @@ async def test_calc_cargo_insurance(client):
 @pytest.mark.anyio
 def test_calc_cargo_insurance_404_cargo(client):
     response = client.post(
-        "/cargo_insurance/", json={"chosen_date": "2022-01-01", "cargo_type": "test"}
+        "/api/cargo_insurance/", json={"chosen_date": "2022-01-01", "cargo_type": "test"}
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Груз не найден"}
@@ -137,7 +137,7 @@ def test_calc_cargo_insurance_404_cargo(client):
 async def test_calc_cargo_insurance_404_rate(client):
     cargo_db = await Cargo.create(name="test 1")
     response = client.post(
-        "/cargo_insurance/", json={"chosen_date": "2022-01-01", "cargo_type": cargo_db.name}
+        "/api/cargo_insurance/", json={"chosen_date": "2022-01-01", "cargo_type": cargo_db.name}
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Тариф не найден"}

@@ -1,20 +1,18 @@
 from datetime import date
 
-from fastapi import Body, FastAPI, HTTPException, status
-from tortoise.contrib.fastapi import register_tortoise
+from fastapi import Body, HTTPException, status
 
-from models import Cargo, Rate
-from schemas import CargoListSchema, RateCreateSchema, RateListSchema
-
-app = FastAPI()
+from app.models import Cargo, Rate
+from app.schemas import CargoListSchema, RateCreateSchema, RateListSchema
+from fastapi import APIRouter
 
 
-@app.get("/")
-def root() -> dict:
-    return {"FastAPI": "Cargo Insurance"}
+router = APIRouter(
+    prefix="/api",
+)
 
 
-@app.post("/rates/")
+@router.post("/rates/")
 async def import_rates(rates: dict[date, RateCreateSchema]) -> dict:
     """Импорт Тарифов.
 
@@ -38,13 +36,13 @@ async def import_rates(rates: dict[date, RateCreateSchema]) -> dict:
     return {"info": f"Обработано тарифов: {count}"}
 
 
-@app.get("/rates/")
+@router.get("/rates/")
 async def get_rates() -> list[RateListSchema]:
     """Получить все Тарифы."""
     return await Rate.all()
 
 
-@app.patch("/cargos/{cargo_id}/")
+@router.patch("/cargos/{cargo_id}/")
 async def set_cargo_value(cargo_id: int, value: float = Body(embed=True)) -> dict:
     """Изменить Объявленную стоимость у Груза."""
     cargo_db = await Cargo.filter(id=cargo_id).first()
@@ -55,7 +53,7 @@ async def set_cargo_value(cargo_id: int, value: float = Body(embed=True)) -> dic
     return {"info": f"Объявленная стоимость Груза {cargo_db.name} изменена на {value}"}
 
 
-@app.get("/cargos/{cargo_id}/")
+@router.get("/cargos/{cargo_id}/")
 async def get_cargo_by_id(cargo_id: int):
     """Получить Груз по ID."""
     cargo_db = await Cargo.filter(id=cargo_id).first()
@@ -64,13 +62,13 @@ async def get_cargo_by_id(cargo_id: int):
     return cargo_db
 
 
-@app.get("/cargos/")
+@router.get("/cargos/")
 async def get_cargos() -> list[CargoListSchema]:
     """Получить все Грузы."""
     return await Cargo.all()
 
 
-@app.post("/cargo_insurance/")
+@router.post("/cargo_insurance/")
 async def calc_cargo_insurance(
     chosen_date: date = Body(embed=True), cargo_type: str = Body(embed=True)
 ) -> dict:
@@ -88,12 +86,3 @@ async def calc_cargo_insurance(
         "value": cargo_db.value,
         "cargo_insurance": cargo_db.value * rate.rate,
     }
-
-
-register_tortoise(
-    app,
-    db_url="sqlite://sql_app.db",
-    modules={"models": ["models"]},
-    generate_schemas=True,
-    add_exception_handlers=True,
-)

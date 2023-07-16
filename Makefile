@@ -1,9 +1,9 @@
 run:
-	uvicorn main:app --reload
+	uvicorn app.main:app --reload
 
 linters:
-	black --config pyproject.toml models.py main.py conftest.py test_api.py
-	isort --sp pyproject.toml models.py main.py conftest.py test_api.py
+	black --config pyproject.toml app tests
+	black --config pyproject.toml app tests
 
 test:
 	pytest
