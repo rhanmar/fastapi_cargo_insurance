@@ -13,6 +13,8 @@
 4. Запуск тестов осуществляется командой `make test_backend`
 5. Проверить доступ на http://localhost:8000/
 
+_Если вдруг при запуске появится ошибка: `ConnectionRefusedError: [Errno 111] Connect call failed ('172.18.0.2', 5432)`, то необходимо перезапустить контейнеры._
+
 ### С помощью виртуального окружения:
 1. `python3.10 -m venv .venv`
 2. `source .venv/bin/activate`
